@@ -1,11 +1,8 @@
 package com.controller;
 
-import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,31 +10,21 @@ import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
-import com.utils.ValidatorUtils;
+import com.baomidou.mybatisplus.mapper.Wrapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.annotation.IgnoreAuth;
 
 import com.entity.OrdersEntity;
 import com.entity.view.OrdersView;
 
 import com.service.OrdersService;
-import com.service.TokenService;
 import com.utils.PageUtils;
 import com.utils.R;
 import com.utils.MPUtil;
-import com.utils.MapUtils;
-import com.utils.CommonUtil;
-import java.io.IOException;
 
 /**
  * 订单
@@ -53,10 +40,20 @@ public class OrdersController {
     private OrdersService ordersService;
 
 
-
-
-
-
+    /**
+     * 数据统计
+     */
+    @GetMapping("/statistics")
+    public R statistics() {
+        HashMap<String, Integer> map = new HashMap<>();
+        map.put("shipped",ordersService.selectList(new EntityWrapper<OrdersEntity>().eq("status","已发货")).size());
+        map.put("notPaid", ordersService.selectList(new EntityWrapper<OrdersEntity>().eq("status","未支付")).size());
+        map.put("paid", ordersService.selectList(new EntityWrapper<OrdersEntity>().eq("status","已支付")).size());
+        map.put("completed", ordersService.selectList(new EntityWrapper<OrdersEntity>().eq("status","已完成")).size());
+        map.put("canceled", ordersService.selectList(new EntityWrapper<OrdersEntity>().eq("status","已取消")).size());
+        map.put("refunded", ordersService.selectList(new EntityWrapper<OrdersEntity>().eq("status","已退款")).size());
+        return R.ok().put("data",map);
+    }
 
 
     /**
