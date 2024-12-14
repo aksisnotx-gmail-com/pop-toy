@@ -18,11 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.annotation.IgnoreAuth;
@@ -53,11 +49,13 @@ public class DiscussshoubanshangpinController {
     private DiscussshoubanshangpinService discussshoubanshangpinService;
 
 
-
-
-
-
-
+    /**
+     * admin query comment list
+     */
+    @PostMapping("admin/list")
+    public R adminQueryCommentsByPage(@RequestBody Map<String, Object> params) {
+        return R.ok().put("data",discussshoubanshangpinService.queryPage(params));
+    }
 
     /**
      * 后台列表

@@ -1,8 +1,15 @@
 package com.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.convert.Convert;
+import com.entity.vo.DiscussProductVO;
+import com.service.ShoubanshangpinService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
@@ -19,16 +26,26 @@ import com.entity.vo.DiscussshoubanshangpinVO;
 import com.entity.view.DiscussshoubanshangpinView;
 
 @Service("discussshoubanshangpinService")
+@RequiredArgsConstructor
 public class DiscussshoubanshangpinServiceImpl extends ServiceImpl<DiscussshoubanshangpinDao, DiscussshoubanshangpinEntity> implements DiscussshoubanshangpinService {
-	
-	
+
+	private final ShoubanshangpinService shoubanshangpinService;
+
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         Page<DiscussshoubanshangpinEntity> page = this.selectPage(
                 new Query<DiscussshoubanshangpinEntity>(params).getPage(),
-                new EntityWrapper<DiscussshoubanshangpinEntity>()
-        );
-        return new PageUtils(page);
+                new EntityWrapper<>());
+
+		Page<DiscussProductVO> productVOPage = new Page<>();
+		List<DiscussProductVO> collect = page.getRecords().stream().map(t -> {
+			DiscussProductVO convert = Convert.convert(DiscussProductVO.class, t);
+			convert.setProductInfo(shoubanshangpinService.selectById(t.getRefid()));
+			return convert;
+		}).collect(Collectors.toList());
+		BeanUtil.copyProperties(page,productVOPage);
+		productVOPage.setRecords(collect);
+		return new PageUtils(productVOPage);
     }
     
     @Override
