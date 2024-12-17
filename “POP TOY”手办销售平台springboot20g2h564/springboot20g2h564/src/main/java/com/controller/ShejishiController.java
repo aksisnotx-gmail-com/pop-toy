@@ -3,16 +3,12 @@ package com.controller;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 
+import com.entity.ShejifanganEntity;
+import com.entity.ShoubandingzhiEntity;
+import com.service.*;
 import com.utils.ValidatorUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,15 +26,13 @@ import com.annotation.IgnoreAuth;
 import com.entity.ShejishiEntity;
 import com.entity.view.ShejishiView;
 
-import com.service.ShejishiService;
-import com.service.TokenService;
 import com.utils.PageUtils;
 import com.utils.R;
 import com.utils.MPUtil;
 import com.utils.MapUtils;
 import com.utils.CommonUtil;
 import java.io.IOException;
-import com.service.StoreupService;
+
 import com.entity.StoreupEntity;
 
 /**
@@ -57,10 +51,10 @@ public class ShejishiController {
     @Autowired
     private StoreupService storeupService;
 
+    @Autowired
+    private ShejifanganService shejifanganService;
 
-
-    
-	@Autowired
+    @Autowired
 	private TokenService tokenService;
 	
 	/**
@@ -199,6 +193,10 @@ public class ShejishiController {
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id){
         ShejishiEntity shejishi = shejishiService.selectById(id);
+        if (Objects.nonNull(shejishi)) {
+            List<ShejifanganEntity> gonghao = shejifanganService.selectList(new EntityWrapper<ShejifanganEntity>().eq("gonghao", shejishi.getGonghao()));
+            return R.ok().put("data",shejishi).put("design",gonghao.isEmpty() ? new ShejifanganEntity() : gonghao.get(0));
+        }
         return R.ok().put("data", shejishi);
     }
     
