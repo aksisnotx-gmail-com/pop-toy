@@ -16,3 +16,5 @@ buildNumber.properties
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
 /.idea/
+/POP-TOY/springboot20g2h564/src/main/resources/admin/admin/node_modules/
+/POP-TOY/springboot20g2h564/src/main/resources/front/front/node_modules/
