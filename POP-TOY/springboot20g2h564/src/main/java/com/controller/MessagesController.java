@@ -3,26 +3,17 @@ package com.controller;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 
+import com.service.ShejishiService;
 import com.utils.ValidatorUtils;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.annotation.IgnoreAuth;
@@ -52,12 +43,41 @@ public class MessagesController {
     @Autowired
     private MessagesService messagesService;
 
+    private static final long DESIGNER_USER_TEXT_ID = 9999L;
+    private static final long FIGURES_USER_TEXT_ID = 9998L;
 
+    @GetMapping("/text/designer")
+    @IgnoreAuth
+    public R designerText(@RequestParam(required = false) String text) {
+        return R.ok(getOrCreate(DESIGNER_USER_TEXT_ID, text).getContent());
+    }
 
+    @GetMapping("/text/figures")
+    @IgnoreAuth
+    public R figuresText(@RequestParam(required = false) String text) {
+        return R.ok(getOrCreate(FIGURES_USER_TEXT_ID, text).getContent());
+    }
 
-    
+    private MessagesEntity getOrCreate(long id,String text) {
+        Wrapper<MessagesEntity> wrapper = new EntityWrapper<MessagesEntity>().eq("userid", id);
+        if (StringUtils.isBlank(text)) {
+            MessagesEntity messages = messagesService.selectOne(wrapper);
+            return Objects.isNull(messages) ? new MessagesEntity() : messages;
+        }
 
+        MessagesEntity messages = messagesService.selectOne(wrapper);
+        if (Objects.isNull(messages)) {
+            MessagesEntity<Object> entity = new MessagesEntity<>();
+            entity.setUserid(id);
+            entity.setContent(text);
+            messagesService.insert(entity);
+            return entity;
+        }
 
+        messages.setContent(text);
+        messagesService.updateById(messages);
+        return messages;
+    }
 
     /**
      * 后台列表
